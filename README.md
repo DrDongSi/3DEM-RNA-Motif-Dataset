@@ -184,3 +184,112 @@ This tool enables **automated cryo-EM map segmentation around RNA motifs** by:
 - Fetching structures directly from the RCSB PDB
 - Running entirely inside ChimeraX
 - Producing segmented `.mrc` and `.pdb` files suitable for downstream ML or structural analysis
+
+Some sample segmented motifs of 
+![3DEM-RNA-Motif-Dataset = 250x250](sample/images/Asymmetric%20Loop%20Segments%202.png)
+
+And some sample segmented motifs and their atomic models, labeled maps
+
+# RNA Motif Classification
+
+This repository provides scripts for training and evaluating a coarse-grained
+RNA 3D motif classifier using cryo-EM density maps.
+
+## Usage
+
+Two main workflows are supported:
+
+1. Training a coarse-grained RNA motif classifier
+2. Validating a trained classifier on a folder of `.mrc` files
+
+
+## 1. Training the Motif Classifier
+
+This script trains a **5-class coarse motif classifier** with the following labels:
+
+- `symmetricloop`
+- `bulge`
+- `hairpin`
+- `asymmetricloop`
+- `unknown`
+
+### Input Requirements
+
+Training and validation data must be provided as CSV files with at least the
+following columns:
+
+| Column     | Description |
+|------------|-------------|
+| `filepath` | Path to the input `.mrc` density map |
+| `label`    | Coarse motif label |
+
+### Command
+
+```bash
+python train_motif_classifier.py <train.csv> <validation.csv> <output_dir>
+```
+
+### Example
+
+```bash
+python train_motif_classifier.py data/train.csv data/val.csv checkpoints/
+```
+
+### Output
+
+- Model checkpoints are written to `<output_dir>` after every epoch:
+  ```
+  label_less_classifier_epoch1.pth
+  label_less_classifier_epoch2.pth
+  ...
+  ```
+- Training runs for 30 epochs by default.
+- GPU is used automatically if available.
+
+
+## 2. Folder-Level Validation
+
+This script evaluates a trained model on `.mrc` files organized by ground-truth
+class folders.
+
+### Required Folder Structure
+
+```text
+evaluation_data/
+├── symmetricloop/
+├── bulge/
+├── hairpin/
+├── asymmetricloop/
+└── unknown/
+```
+
+Each subfolder should contain `.mrc` files belonging to that class.
+A maximum of **90 files per class** are randomly sampled.
+
+### Command
+
+```bash
+python validate_folder.py <evaluation_folder> <checkpoint.pth>
+```
+
+### Example
+
+```bash
+python validate_folder.py evaluation_data/ checkpoints/label_less_classifier_epoch30.pth
+```
+
+### Output
+
+- Per-file predictions (true label vs predicted label)
+- Confusion matrix (rows = true, columns = predicted)
+- Per-class sensitivity and specificity
+- Macro-averaged sensitivity and specificity
+
+## Notes
+
+- `.mrc` files are automatically resampled and normalized.
+- Labeled voxel maps are currently disabled by default.
+- Ensure the following modules are available in your Python path:
+  - `resample_mrc.py`
+  - `inference_single.py`
+
