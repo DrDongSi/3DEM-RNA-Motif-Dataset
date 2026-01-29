@@ -42,7 +42,7 @@ We introduce, a pipeline for cryo-electron microscopy (cryo-EM) density maps and
 | Classification Model Weights  | Pretrained weights for the classification models used in experiments.      |  <a href="https://zenodo.org/uploads/18409492"><img src="" draggable="false">Zenodo Dataset</a> |
 | Classification Fold Dataset  | Dataset organized into folds for training, validation, and testing.        |[Zenodo Dataset](https://zenodo.org/records/18409492) |
 | Motif Dataset                | Dataset containing motif-level samples used for pattern or feature analysis. | |
-| Benchmark Results            | Benchmark results for classification of RNA Motifs | | 
+| Benchmark Results            | Benchmark results for classification of RNA Motifs | [Results](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/main/README.md#benchmark)| 
 
 
 ## Getting started (For end users)
@@ -93,12 +93,22 @@ chimerax --nogui
 ---
 
 ### Quick Start
-## Architecture Overview
+
+### Segmentation
+Segmentation is performed by aligning atomic RNA structures to their corresponding cryo-EM density maps, selecting user-specified residue ranges, and extracting local density using spatial zoning around the selected atoms. The resulting non-zero voxel regions are cropped into compact subvolumes, producing motif-specific density maps suitable for quantitative analysis and classification.
+As show in the following figure segmenting a hairpin with four residues at the location 1896 - 1903 chain positions in Chain A of _B. subtilis ApdA-stalled_ ribosomal complex with PDB ID 8QCQ, by selecting the density voxels around the atomic map of the hairpin. The occurrence information of the motifs for the dataset collected in this project is obtained from CossMosDB and the jupyter notebook found here can be used to collect all the motif information.   You can  find the information of motif sequences already fetched [here](https://drive.google.com/drive/folders/1hHA16pI2Vi6p6EgbGSfCZ9rksYzvBifN?usp=sharing). And you may use this information in segmentation and labelling tool testing and usage. You can also use the dataset for ML or deeplearning modeling. You can the jupyter notebook is only used to fetch the motif sequence information from CossMos [here](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/src/process_cossmos.ipynb) if you require testing of motif information fetch process. For which create a directory RNAmotifproject under MyDrive in google drive and copy [this](https://drive.google.com/drive/folders/1yDI5FakBihkRMw4z_5mmrnz_stLHZc0o?usp=drive_link) folder under the same name inside the RNAmotifproject directory.
+
+<p align="center">
+  <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/Segmentation.png" alt="RNA Motif Architecture" width="720">
+</p>
+
+
+#### Architecture Overview
 PDB structures and density maps are loaded into ChimeraX via public REST APIs without authentication, followed by segmentation. Cryo-EM density data stored in MRC/map formats are processed to generate and label 25 motif types, forming a dataset. The density maps are fitted to RNA 3D structures, and voxels within 5 Å of selected RNA chain regions are segmented as regions of interest.
 <p align="center">
   <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/images/Architecture%20diagram.png" alt="RNA Motif Architecture" width="720">
 </p>
-
+---
 ## Project Structure
 
 ```text
