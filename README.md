@@ -177,9 +177,7 @@ Backbone Label - backbone_label_segmentedMap.mrc
 Ribose Label - ribose_label_segmentedMap.mrc
 Sugar Label - sugar_label_segmentedMap.mrc
 
-You can find the sample response here 
-
-https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/chandramathi/sample
+You can find the sample response [here](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/chandramathi/sample)
 
 ---
 ## Classification
