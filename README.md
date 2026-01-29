@@ -1,12 +1,53 @@
-# Cryo-EM and Secondary Structure Segmentation & Labelling (CLI Tool)
+<!-- ===================== Header ===================== -->
 
-This repository provides a **command-line workflow** for downloading cryo-EM density maps and atomic structures from the RCSB PDB and **segmenting density maps around specific RNA residues** using **UCSF ChimeraX**.
+<p align="center">
+  <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/images/Logo.png" alt="DAIS Research Lab" width="720">
+</p>
 
-It is designed to be run **inside ChimeraX’s Python environment** (not system Python).
+<!-- Note: The above is official Seed information. -->
 
----
+<p align="center">
+  AI for Science and Structural Biology
+</p>
 
-## Repository
+<p align="center">
+  Large Scale cryo-EM RNA-Motif Dataset and Benchmark for Machine Learning and Structure Modeling
+</p>
+
+<h1 align="center">
+  Cryo-EM Dataset of RNA-Motif and Open Sourced Tool for cryo-EM Motif Segmentation and Validation
+</h1>
+
+<!-- <p align="center">
+  <a href="https://bytedance-seed.github.io/cryofm/">
+    <img src="https://img.shields.io/badge/Website-cryofm-3b82f6?style=flat&logo=googlechrome&labelColor=111827" alt="Website" draggable="false">
+  </a>
+  <a href="https://bytedance-seed.github.io/cryofm/docs">
+    <img src="https://img.shields.io/badge/Docs-Guide-2e3440?style=flat&logo=readthedocs&labelColor=111827" alt="Docs" draggable="false">
+  </a>
+  <a href="https://github.com/ByteDance-Seed/cryofm/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-Apache--2.0-64748b?style=flat&logo=apache&labelColor=111827" alt="License" draggable="false">
+  </a>
+</p> -->
+
+<!-- =================================================== -->
+
+
+We introduce, a pipeline for cryo-electron microscopy (cryo-EM) density maps and structure map segmentation of known structural motif occurences in an RNA and a benchmarked dataset for classification tasks. RNA plays essential roles in gene regulation, viral replication, and cellular function, where its three-dimensional (3D) structure is tightly coupled to biological activity. Unlike proteins, RNA exhibits high conformational flexibility, folding into complex 3D architectures through base pairing and long-range interactions. These structures are composed of recurring elements such as helices, hairpins, bulges, internal loops, and junctions. Such recurring elements, known as RNA structural motifs, form conserved building blocks of RNA tertiary structure. This repository provides a computational pipeline for RNA motif segmentation from cryo-EM density maps. The segmented regions are further used for motif-level classification based on local structural and density features. The framework enables standardized motif extraction across diverse RNA molecules and resolutions. It supports reproducible analysis and scalable dataset generation for downstream learning tasks. The method is designed to integrate structural data with machine-learning-based classification. Confusion-matrix–based benchmarking results are provided to evaluate classification performance. 
+
+## Resources
+
+| **Category**                      | **Description**                                                                 |             **Link** |
+|-------------------------------|-----------------------------------------------------------------------------|-----------------------|
+| Classification Model Weights  | Pretrained weights for the classification models used in experiments.      |  <a href="https://zenodo.org/uploads/18409492"><img src="" draggable="false">Zenodo Dataset</a> |
+| Classification Fold Dataset  | Dataset organized into folds for training, validation, and testing.        |[Zenodo Dataset](https://zenodo.org/records/18409492) |
+| Motif Dataset                | Dataset containing motif-level samples used for pattern or feature analysis. | |
+| Benchmark Results            | Benchmark results for classification of RNA Motifs | | 
+
+
+## Getting started (For end users)
+
+### Installation - Repository
 
 Clone the dataset and scripts:
 
@@ -17,18 +58,17 @@ git clone https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset
 ```
 cd 3DEM-RNA-Motif-Dataset
 ```
-
 ---
 
-## Dependencies
+### Dependencies
 
-### Required Tools
+#### Required Tools
 
 - **UCSF ChimeraX (v1.9 or higher)**  
   Download: https://www.cgl.ucsf.edu/chimerax/download.html
 
 - **Phenix**  
-  Installation instructions and source available from the official Phenix site.
+  Installation instructions and source available from the official Phenix site - [https://www.phenix-online.org/about](https://www.phenix-online.org/about).
 
 - **mrcfile (inside ChimeraX)**  
   Even if installed via `pip`, ChimeraX will **not** see it. Install it via ChimeraX toolshed:
@@ -40,8 +80,7 @@ cd 3DEM-RNA-Motif-Dataset
 > **Note:** Installing `mrcfile` through system Python is insufficient. It must be installed inside ChimeraX.
 
 ---
-
-## Installing UCSF ChimeraX
+#### Installing UCSF ChimeraX
 
 1. Visit: https://www.cgl.ucsf.edu/chimerax/download.html  
 2. Download the installer for your OS (Windows / macOS / Linux)
@@ -53,12 +92,20 @@ chimerax --nogui
 
 ---
 
+### Quick Start
+## Architecture Overview
+PDB structures and density maps are loaded into ChimeraX via public REST APIs without authentication, followed by segmentation. Cryo-EM density data stored in MRC/map formats are processed to generate and label 25 motif types, forming a dataset. The density maps are fitted to RNA 3D structures, and voxels within 5 Å of selected RNA chain regions are segmented as regions of interest.
+<p align="center">
+  <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/images/Architecture%20diagram.png" alt="RNA Motif Architecture" width="720">
+</p>
+
 ## Project Structure
 
 ```text
 src/
 │── segment.py          # Core reusable segmentation functions
 │── test_segment.py     # Demo / driver script
+configurations/
 │── config.json         # RCSB API configuration
 ```
 
@@ -66,230 +113,184 @@ src/
 
 ## segment.py Overview
 
-This file defines **three key functions**:
-
-### fetch_emdb_map(session, pdb_id)
-- Downloads the cryo-EM density map corresponding to a PDB ID
-- Returns the local path to the `.map` file
-
-### fetch_pdb_file(session, pdb_id)
-- Downloads the atomic structure for the given PDB ID
-- Returns the local path to the PDB/CIF file
-
-### segment_map(session, pdb_file_path, emdb_file_path, chain_id, residue_ranges)
-- Loads the PDB and EMDB map into ChimeraX
-- Selects residues from the specified chain and residue ranges
-- Segments the cryo-EM density around the selection
-- Saves:
-  - Segmented density map (`.mrc`)
-  - Segmented atomic model (`.pdb`)
-
-**Important Note**  
-The segmented map filename is currently **hardcoded** (e.g., `outputMaps/segmentedMap.mrc`).  
-Running the script multiple times will overwrite previous outputs unless renamed or modified.
-
----
-
-## config.json
-
-The scripts optionally read the RCSB API base URL from `config.json`.
-
-Create the file in the same directory as the scripts:
-
-```json
-{
-  "rcsb_api_base_url": "https://data.rcsb.org/rest/v1/core/entry"
-}
-```
-
-If this file is missing, the script will fall back to the default URL defined in the code.
-
----
-
-## Demo Script: test_segment.py
-
-This script demonstrates the full workflow by calling the three functions in sequence.
-
-Key parameters:
-
-```python
-pdb_id = "6VXX"
-chain_id = "A"
-residue_ranges = [(50, 60), (150, 160)]
-```
-
-To test other structures:
-- Change **only** these three parameters
-- No other code modifications are required
-
----
-
-## How to Run
-
-These scripts must be executed inside **ChimeraX’s Python runtime**.
+**Usage**
 
 ```bash
-cd my_project
-chimerax --nogui --script test_segment.py
+chimerax --nogui --script segment.py -- \
+  <pdb_id> [emdb_id(optional)] \
+  <chain:start-end[,start-end]> [<chain:start-end> ...]
 ```
 
-This will:
-1. Download the EMDB cryo-EM density map  
-2. Download the PDB atomic structure  
-3. Segment the density map around the specified chain and residues  
-4. Save the segmented outputs to disk  
+**Example: Segmentation of a RNA-Motif density map**
+
+To segment a hairpin with four residues at the location 1896 - 1903 chain positions in Chain A of _B. subtilis ApdA-stalled_ ribosomal complex with PDB ID 8QCQ. Note: execute the command line tool from within the src directory.
+
+```bash
+# Single sequence style
+chimerax --nogui --cmd "runscript segment.py 8QCQ A:1896-1903"
+```
+To segment a symmetrice loop of order 2x2 at the location 1490-1495,1424-1429 chain positions in Chain A of _B. subtilis ApdA-stalled_ ribosomal complex with PDB ID 8QCQ.
+```bash
+# Multiple sequence style
+chimerax --nogui --cmd "runscript segment.py 8QCQ A:1490-1495,1424-1429"
+```
+
+**Output**
+
+The segmented files will be stored in the directory outputMaps and outputPDBs (the folders will be created if not already present). The Q-Score, CCmask results will be printed to the console and mask.ccp4 written to the current directory. 
+
 
 ---
 
-## Output Files
+## Labeling 
 
-### Default Locations
+**Usage**
+```bash
+python label.py input.mrc input.pdb
+```
 
-- **Downloaded PDB files**  
-  ```text
-  ~/Downloads/ChimeraX/PDB/
-  ```
+**Example**
 
-- **Downloaded EMDB maps**  
-  ```text
-  ~/Downloads/ChimeraX/EMDB/
-  ```
-
-- **Segmented density map**
-  ```text
-  outputMaps/segmentedMap.mrc
-  ```
-
-- **Segmented atomic model**
-  ```text
-  outputPDBs/segmented.pdb
-  ```
-
-Filenames are fixed by default. Modify `segment_map()` to generate unique names if needed.
+```bash
+python3 label.py ./outputMaps/segmentedMap.mrc ./outputPDBs/segmentedPDB.pdb
+```
+By default creates files of the name 
+Backbone Label - backbone_label_segmentedMap.mrc
+Ribose Label - ribose_label_segmentedMap.mrc
+Sugar Label - sugar_label_segmentedMap.mrc
 
 ---
+## Classification
 
-## Cleanup
+## Benchmark 
 
-To prevent your `Downloads` directory from filling up:
+<table>
+  <tr>
+    <!-- <th>Sl.No</th> -->
+    <th>Fold</th>
+    <th>Training Set</th>
+    <th>Validation Set</th>
+    <th>Model</th>
+    <th>Confusion Matrix (sym, bul, hp, asymm, unk)</th>
+    <th style="background-color:#d4f8d4;">Macro Sensitivity</th>
+    <th style="background-color:#d4f8d4;">Macro Specificity</th>
+  </tr>
 
-- `segment.py` includes a `cleanupfiles(pdb_id, emdb_id)` function
-- You can adapt or enable it to remove downloaded PDB and EMDB files after segmentation
+  <!-- Fold 1 -->
+  <tr>
+    <!-- <td>1</td> -->
+    <td>Fold 1</td>
+    <td>SET1, SET2, SET3, SET4</td>
+    <td>SET5</td>
+    <td>fold1Model.pth</td>
+    <td>
+      <table border="1">
+        <tr><th>True\Pred</th><th>sym</th><th>bul</th><th>hp</th><th>asymm</th><th>unk</th></tr>
+        <tr><td>sym</td><td style="background:#b6fcb6;">🟢 <b>7</b></td><td>1</td><td>3</td><td>12</td><td>0</td></tr>
+        <tr><td>bul</td><td>0</td><td style="background:#b6fcb6;">🟢 <b>80</td><td>10</td><td>0</td><td>0</td></tr>
+        <tr><td>hp</td><td>5</td><td>9</td><td style="background:#b6fcb6;">🟢 <b>71</td><td>5</td><td>0</td></tr>
+        <tr><td>asymm</td><td>15</td><td>1</td><td>4</td><td style="background:#b6fcb6;">🟢 <b>69</td><td>0</td></tr>
+        <tr><td>unk</td><td>0</td><td>0</td><td>0</td><td>0</td><td style="background:#b6fcb6;">🟢 <b>79</td></tr>
+      </table>
+    </td>
+    <td style="background-color:#d4f8d4;">0.855</td>
+    <td style="background-color:#d4f8d4;">0.963</td>
+  </tr>
 
----
+  <!-- Fold 2 -->
+  <tr>
+    <!-- <td>2</td> -->
+    <td>Fold 2</td>
+    <td>SET1, SET2, SET3, SET5</td>
+    <td>SET4</td>
+    <td>fold2Model.pth</td>
+    <td>
+      <table border="1">
+        <tr><th>True\Pred</th><th>sym</th><th>bul</th><th>hp</th><th>asymm</th><th>unk</th></tr>
+        <tr><td>sym</td><td style="background:#b6fcb6;">🟢 <b>70</td><td>0</td><td>4</td><td>16</td><td>0</td></tr>
+        <tr><td>bul</td><td>1</td><td style="background:#b6fcb6;">🟢 <b>75</td><td>14</td><td>0</td><td>0</td></tr>
+        <tr><td>hp</td><td>5</td><td>10</td><td style="background:#b6fcb6;">🟢 <b>70</td><td>5</td><td>0</td></tr>
+        <tr><td>asymm</td><td>20</td><td>1</td><td>7</td><td style="background:#b6fcb6;">🟢 <b>61</td><td>0</td></tr>
+        <tr><td>unk</td><td>0</td><td>0</td><td>0</td><td>1</td><td style="background:#b6fcb6;">🟢 <b>78</td></tr>
+      </table>
+    </td>
+    <td style="background-color:#d4f8d4;">0.812</td>
+    <td style="background-color:#d4f8d4;">0.952</td>
+  </tr>
 
-## Summary
+  <!-- Fold 3 -->
+  <tr>
+    <!-- <td>3</td> -->
+    <td>Fold 3</td>
+    <td>SET1, SET2, SET4, SET5</td>
+    <td>SET3</td>
+    <td>fold3Model.pth</td>
+    <td>
+      <table border="1">
+        <tr><th>True\Pred</th><th>sym</th><th>bul</th><th>hp</th><th>asymm</th><th>unk</th></tr>
+        <tr><td>sym</td><td style="background:#b6fcb6;">🟢 <b>72</td><td>1</td><td>1</td><td>16</td><td>0</td></tr>
+        <tr><td>bul</td><td>1</td><td style="background:#b6fcb6;">🟢 <b>78</td><td>11</td><td>0</td><td>0</td></tr>
+        <tr><td>hp</td><td>4</td><td>14</td><td style="background:#b6fcb6;">🟢 <b>62</td><td>10</td><td>0</td></tr>
+        <tr><td>asymm</td><td>14</td><td>1</td><td>5</td><td style="background:#b6fcb6;">🟢 <b>69</td><td>0</td></tr>
+        <tr><td>unk</td><td>0</td><td>0</td><td>0</td><td>0</td><td style="background:#b6fcb6;">🟢 <b>79</td></tr>
+      </table>
+    </td>
+    <td style="background-color:#d4f8d4;">0.826</td>
+    <td style="background-color:#d4f8d4;">0.955</td>
+  </tr>
 
-This tool enables **automated cryo-EM map segmentation around RNA motifs** by:
-- Fetching structures directly from the RCSB PDB
-- Running entirely inside ChimeraX
-- Producing segmented `.mrc` and `.pdb` files suitable for downstream ML or structural analysis
+  <!-- Fold 4 -->
+  <tr>
+    <!-- <td>4</td> -->
+    <td>Fold 4</td>
+    <td>SET1, SET3, SET4, SET5</td>
+    <td>SET2</td>
+    <td>fold4Model.pth</td>
+    <td>
+      <table border="1">
+        <tr><th>True\Pred</th><th>sym</th><th>bul</th><th>hp</th><th>asymm</th><th>unk</th></tr>
+        <tr><td>sym</td><td style="background:#b6fcb6;">🟢 <b>71</td><td>0</td><td>5</td><td>14</td><td>0</td></tr>
+        <tr><td>bul</td><td>1</td><td style="background:#b6fcb6;">🟢 <b>77</td><td>12</td><td>0</td><td>0</td></tr>
+        <tr><td>hp</td><td>3</td><td>13</td><td style="background:#b6fcb6;">🟢 <b>66</td><td>8</td><td>0</td></tr>
+        <tr><td>asymm</td><td>16</td><td>0</td><td>4</td><td style="background:#b6fcb6;">🟢 <b>69</td><td>0</td></tr>
+        <tr><td>unk</td><td>0</td><td>0</td><td>1</td><td>0</td><td style="background:#b6fcb6;">🟢 <b>78</td></tr>
+      </table>
+    </td>
+    <td style="background-color:#d4f8d4;">0.828</td>
+    <td style="background-color:#d4f8d4;">0.956</td>
+  </tr>
 
-Some sample segmented motifs of 
-![3DEM-RNA-Motif-Dataset = 250x250](sample/images/Asymmetric%20Loop%20Segments%202.png)
-
-And some sample segmented motifs and their atomic models, labeled maps
-
-# RNA Motif Classification
-
-This repository provides scripts for training and evaluating a coarse-grained
-RNA 3D motif classifier using cryo-EM density maps.
-
-## Usage
-
-Two main workflows are supported:
-
-1. Training a coarse-grained RNA motif classifier
-2. Validating a trained classifier on a folder of `.mrc` files
-
-
-## 1. Training the Motif Classifier
-
-This script trains a **5-class coarse motif classifier** with the following labels:
-
-- `symmetricloop`
-- `bulge`
-- `hairpin`
-- `asymmetricloop`
-- `unknown`
-
-### Input Requirements
-
-Training and validation data must be provided as CSV files with at least the
-following columns:
-
-| Column     | Description |
-|------------|-------------|
-| `filepath` | Path to the input `.mrc` density map |
-| `label`    | Coarse motif label |
-
-### Command
-
-```bash
-python train_motif_classifier.py <train.csv> <validation.csv> <output_dir>
-```
-
-### Example
-
-```bash
-python train_motif_classifier.py data/train.csv data/val.csv checkpoints/
-```
-
-### Output
-
-- Model checkpoints are written to `<output_dir>` after every epoch:
-  ```
-  label_less_classifier_epoch1.pth
-  label_less_classifier_epoch2.pth
-  ...
-  ```
-- Training runs for 30 epochs by default.
-- GPU is used automatically if available.
+  <!-- Fold 5 -->
+  <tr>
+    <td>Fold 5</td>
+    <td>SET2, SET3, SET4, SET5</td>
+    <td>SET1</td>
+    <td>fold3Model.pth</td>
+    <td>
+      <table border="1">
+        <tr><th>True\Pred</th><th>sym</th><th>bul</th><th>hp</th><th>asymm</th><th>unk</th></tr>
+        <tr><td>sym</td> <td>🟢 <b>71</td><td>1</td><td>2</td><td>16</td><td>0</td></tr>
+        <tr><td>bul</td><td>0</td><td style="background:#b6fcb6;">🟢 <b>85</td><td>5</td><td>0</td><td>0</td></tr>
+        <tr><td>hp</td><td>2</td><td>15</td><td style="background:#b6fcb6;">🟢 <b>67</td><td>6</td><td>0</td></tr>
+        <tr><td>asymm</td><td>9</td><td>0</td><td>5</td><td style="background:#b6fcb6;">🟢 <b>75</td><td>0</td></tr>
+        <tr><td>unk</td><td>0</td><td>2</td><td>0</td><td>1</td><td style="background:#b6fcb6;"> 🟢 <b>76</td></tr>
+      </table>
+    </td>
+    <td style="background-color:#d4f8d4;">0.856</td>
+    <td style="background-color:#d4f8d4;">0.963</td>
+  </tr>
+</table>
 
 
-## 2. Folder-Level Validation
+## About [DAIS Team](https://sites.google.com/uw.edu/dais-uw/home)
 
-This script evaluates a trained model on `.mrc` files organized by ground-truth
-class folders.
+The DAIS (Data Analysis & Intelligent Systems) research group at the University of Washington, led by Dr. Dong Si, specializes in developing advanced AI and data science solutions for smart healthcare and next-generation biomedicine.
 
-### Required Folder Structure
+Their research portfolio includes high-impact projects like DeepTracer for 3D protein modeling from cryo-EM data and iCare, which utilizes conversational AI and natural language processing to support mental and behavioral health.
 
-```text
-evaluation_data/
-├── symmetricloop/
-├── bulge/
-├── hairpin/
-├── asymmetricloop/
-└── unknown/
-```
-
-Each subfolder should contain `.mrc` files belonging to that class.
-A maximum of **90 files per class** are randomly sampled.
-
-### Command
-
-```bash
-python validate_folder.py <evaluation_folder> <checkpoint.pth>
-```
-
-### Example
-
-```bash
-python validate_folder.py evaluation_data/ checkpoints/label_less_classifier_epoch30.pth
-```
-
-### Output
-
-- Per-file predictions (true label vs predicted label)
-- Confusion matrix (rows = true, columns = predicted)
-- Per-class sensitivity and specificity
-- Macro-averaged sensitivity and specificity
-
-## Notes
-
-- `.mrc` files are automatically resampled and normalized.
-- Labeled voxel maps are currently disabled by default.
-- Ensure the following modules are available in your Python path:
-  - `resample_mrc.py`
-  - `inference_single.py`
-
+The group is also deeply committed to outreach and diversity, actively mentoring students from various backgrounds and working to encourage underrepresented minorities to pursue careers in STEM.
+<div>
+  Contributors
+  <a href="Chandramathi Murugadass">
+    <img src="[https://img.shields.io/badge/Website-%231e37ff?style=for-the-badge&logo=bytedance&logoColor=white](https://github.com/chandramathi)"></a>
+</div>
