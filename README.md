@@ -121,7 +121,7 @@ configurations/
 
 ---
 
-## segment.py Overview
+## Segmentation Command Line Tool Overview
 
 **Usage**
 
@@ -154,6 +154,8 @@ The segmented files will be stored in the directory outputMaps and outputPDBs (t
 
 ## Labeling 
 
+Labeling MRC density maps projects atomic model information into the 3D voxel space of cryo-EM maps. Atomic coordinates are aligned, converted to voxel indices, and assigned labels within a defined radius to account for density blur. Overlapping labels are resolved by nearest-atom assignment. The result is a labeled MRC file with biologically meaningful voxel-level annotations, useful for motif recognition, segmentation, and training deep learning models.
+
 **Usage**
 ```bash
 python label.py input.mrc input.pdb
@@ -182,7 +184,55 @@ https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/chandramathi/sample
 ---
 ## Classification
 
-## Benchmark 
+This research includes a classification of motifs using the 3D CNN deep learning model. This classification model is used to test and ensure that the created labelled dataset of motifs has the metadata and data in the files in a consistent format. The training is designed to classify RNA structures using a 3D based deep learning model that leverages both cryo-EM density maps (.mrc files). The dataset is first split into training and validation subsets (80% training and 20 % validation), then wrapped into PyTorch DataLoader objects for efficient batching. The model, Motif3DCNN has 5 classes "symmetric_loop", "bulge", "hairpin", "asymmetric_loop","unknown", takes as input a volumetric density map and corresponding labelled 3D map to extract those voxels  features. Training is performed using cross entropy loss for multi class classification, with the Adam optimizer managing parameter updates. After each epoch, the model’s performance is evaluated on the validation set, and a checkpoint is saved so that training progress can be resumed or tested later.
+
+### Training
+To train the classification model we used segmented motif maps of 2.8 Å or higher. And grouped them into  5 classes symmetric, asymmetric, hairpin. bulges and unknown. The symmetric, asymmetric, hairpin. bulges are RNA motif structures and unknown is any background noise or structures anything that isn't a motif. We used 5 Folds each with approximately 1800 Training data and 450 validation dataset following the 80-20 rule. Each motif type contains about 90 samples that is each set of data contains 5 x 90 = 450 and hence the validation dataset of each fold contains 450. 
+The default number of epochs used for training is 30.
+
+**Usage**
+Assuming the current directory is the source directory
+```bash
+python3 train.py <CSVOfTrainingDataset> <CSVOfValidationDataset> <Destination Directory>
+```
+    **CSVOfTrainingDataset** - A csv file containing a list of the density files that are to be used for training of the classification model
+    **CSVOfValidationDataset** - A csv file containing a list the density files that are to be used for validation of the classification model
+    **Destination Directory** - The location were all the trained models are saved.
+
+You can find all the curated training and validation input CSV files [here](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/main/src/trainingCSVs) and the filtered dataset needed for training [here](https://zenodo.org/records/18396353)
+
+```bash
+cd ./src
+python3 train.py ./trainingCSVs/fold1_train.csv ./trainingCSVs/fold1_val.csv SET1
+```
+
+**Output**
+Model weights stored as .pth files in the directory given as command line argument.
+
+---
+**Testing**
+To test the trained classification model you can use the utility validate_folder.py
+
+**Usage**
+Assuming the current directory is the source directory
+
+```bash
+  python validate_folder.py <testFilesDirectory> <modelWeights>
+```
+**testFilesDirectory** - The folder path of the directory containing all the files that are going to be used in testing the trained classification model. Ensure that the files follow the naming convention <emdb_id>_<pdb_id>_<motif_type>_<sequenceNumber>.mrc followed in this project and 
+**modelWeights** - The file path of the trained classification model.
+
+Download the trained models used for benchmarking from [here](https://zenodo.org/records/18409492) 
+```bash
+  python validate_folder.py ./testSET/ ./models/fold5Model.pth
+```
+
+**Output**
+It will give the confusion matrix, specificity and selectivity scores.
+
+---
+
+### Classification Benchmark 
 
 <table>
   <tr>
