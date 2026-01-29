@@ -158,16 +158,26 @@ The segmented files will be stored in the directory outputMaps and outputPDBs (t
 ```bash
 python label.py input.mrc input.pdb
 ```
+<p align="center">
+  <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/images/LabelFlow.png" alt="RNA Labeling Illustration" width="720">
+</p>
+
 
 **Example**
 
 ```bash
 python3 label.py ./outputMaps/segmentedMap.mrc ./outputPDBs/segmentedPDB.pdb
 ```
+**Output**
+
 By default creates files of the name 
 Backbone Label - backbone_label_segmentedMap.mrc
 Ribose Label - ribose_label_segmentedMap.mrc
 Sugar Label - sugar_label_segmentedMap.mrc
+
+You can find the sample response here 
+
+https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/chandramathi/sample
 
 ---
 ## Classification
