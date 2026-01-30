@@ -1,17 +1,23 @@
 import os
 import json
 import requests
-from chimerax.core.commands import run
+import sys
+import argparse
 import traceback
 import re
-from chimerax.map import Volume
 import numpy as np
+from chimerax.core.commands import run
+from chimerax.core.session import Session
+from chimerax.map import Volume
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from qscoreCompute import computeQscore
 from zscoreCompute import computeZScore
-from label import generateLabelMap
+# from label import generateLabelMap
+
 # Load config
-with open("config.json", "r") as config_file:
+with open("../configurations/config.json", "r") as config_file:
     config = json.load(config_file)
 BASE_URL = config.get("rcsb_api_base_url", "https://data.rcsb.org/rest/v1/core/entry")
 
@@ -66,15 +72,18 @@ def fetch_pdb_file(session, pdb_id):
         return None
 
 #Load PDB and EMDB map, select residues, and return path to segmented map.
-def segment_map(session, pdb_file_path, emdb_file_path, chain_id, residue_ranges):
+def segment_map(session, pdb_file_path, emdb_file_path, chain_ranges):
     try:
         run(session, "close all")
         run(session, f"open {pdb_file_path}")
         
         # Build selection string
         selections = []
-        for start, end in residue_ranges:
-            selections.append(f"/{chain_id}:{start}-{end}")
+        selections = []
+        for chain_id, residue_ranges in chain_ranges:
+            for start, end in residue_ranges:
+                selections.append(f"/{chain_id}:{start}-{end}")
+
         sel_str = " ".join(selections)
         run(session, f"select {sel_str}")
         
@@ -122,13 +131,92 @@ def segment_map(session, pdb_file_path, emdb_file_path, chain_id, residue_ranges
 
         computeQscore(session,filename, output_path, f"qscoreOutput.csv")
         computeZScore(output_path, filename, f"zscoreOutput.csv")
-        generateLabelMap(output_path,filename,f"backboneLabel.mrc","backbone")
-        generateLabelMap(output_path,filename,f"riboseLabel.mrc","ribose")
-        generateLabelMap(output_path,filename,f"sugarLabel.mrc","sugar")
+        # generateLabelMap(output_path,filename,f"backboneLabel.mrc","backbone")
+        # generateLabelMap(output_path,filename,f"riboseLabel.mrc","ribose")
+        # generateLabelMap(output_path,filename,f"sugarLabel.mrc","sugar")
         return output_path
 
     except Exception as e:
         print(f"Segmentation failed: {e}")
         traceback.print_exc()
         return None
+
+def parse_chain_ranges(chain_range_args):
+    parsed = []
+
+    for entry in chain_range_args:
+        chain, ranges = entry.split(":")
+        res_ranges = []
+        for r in ranges.split(","):
+            start, end = r.split("-")
+            res_ranges.append((int(start), int(end)))
+        parsed.append((chain, res_ranges))
+
+    return parsed
+
+
+def main(session, pdb_id, emdb_id, chain_ranges):
+    print("Segmentation starts...")
+
+    print(" Parameters")
+    print(f"  PDB ID  : {pdb_id}")
+    print(f"  EMDB ID : {emdb_id or 'auto-detect'}")
+    print(f"  Chains  : {chain_ranges}")
+
+
+    # Fetch structure
+    pdb_file = fetch_pdb_file(session, pdb_id)
+    if not pdb_file:
+        raise RuntimeError("Failed to fetch PDB file")
+
+    # Fetch map
+    if emdb_id:
+        run(session, f"open emdb:{emdb_id.replace('EMD-', '')}")
+        emdb_file = os.path.expanduser(
+            f"~/Downloads/ChimeraX/EMDB/emd_{emdb_id.replace('EMD-', '')}.map"
+        )
+    else:
+        emdb_file = fetch_emdb_map(session, pdb_id)
+
+    if not emdb_file or not os.path.exists(emdb_file):
+        raise RuntimeError("Failed to fetch EMDB map")
+
+    # Run segmentation 
+    output_map = segment_map( session, pdb_file, emdb_file, chain_ranges)
+
+
+    if output_map:
+        print(" Segmentation and labeling complete")
+        print(f"  Segmented map : {output_map}")
+        # print("  Labels        : backboneLabel.mrc, riboseLabel.mrc, sugarLabel.mrc")
+    else:
+        raise RuntimeError("Segmentation failed")
+
+
+if len(sys.argv) < 3:
+    print(
+        "Usage:\n"
+        "  chimerax --nogui --script segment.py -- \\\n"
+        "    <pdb_id> [emdb_id(optional)] \\\n"
+        "    <chain:start-end[,start-end]> [<chain:start-end> ...]\n\n"
+        "Example:\n"
+        "  chimerax --nogui --script segment.py -- 6ZMI A:10-25,40-52 C:5-18\n"
+        "  chimerax --nogui --script segment.py -- 6ZMI EMD-12345 A:10-25\n"
+    )
+else:
+    pdb_id = sys.argv[1]
+
+    # Detect whether EMDB ID is provided
+    arg_offset = 2
+    if sys.argv[2].upper().startswith("EMD"):
+        emdb_id = sys.argv[2]
+        arg_offset = 3
+    else:
+        emdb_id = None
+
+    chain_args = sys.argv[arg_offset:]
+    chain_ranges = parse_chain_ranges(chain_args)
+
+    print(f"Starting segmentation for PDB {pdb_id}")
+    main(session, pdb_id, emdb_id, chain_ranges)
 
