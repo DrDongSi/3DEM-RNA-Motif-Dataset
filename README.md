@@ -254,7 +254,7 @@ It will give the confusion matrix, specificity and selectivity scores.
     <td>
       <table border="1">
         <tr><th>True\Pred</th><th>sym</th><th>bul</th><th>hp</th><th>asymm</th><th>unk</th></tr>
-        <tr><td>sym</td><td style="background:#b6fcb6;">🟢 <b>7</b></td><td>1</td><td>3</td><td>12</td><td>0</td></tr>
+        <tr><td>sym</td><td style="background:#b6fcb6;">🟢 <b>72</b></td><td>1</td><td>3</td><td>12</td><td>0</td></tr>
         <tr><td>bul</td><td>0</td><td style="background:#b6fcb6;">🟢 <b>80</td><td>10</td><td>0</td><td>0</td></tr>
         <tr><td>hp</td><td>5</td><td>9</td><td style="background:#b6fcb6;">🟢 <b>71</td><td>5</td><td>0</td></tr>
         <tr><td>asymm</td><td>15</td><td>1</td><td>4</td><td style="background:#b6fcb6;">🟢 <b>69</td><td>0</td></tr>
