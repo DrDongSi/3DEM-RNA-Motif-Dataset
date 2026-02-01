@@ -41,8 +41,8 @@ We introduce, a pipeline for cryo-electron microscopy (cryo-EM) density maps and
 |-------------------------------|-----------------------------------------------------------------------------|-----------------------|
 | Classification Model Weights  | Pretrained weights for the classification models used in experiments.      |  <a href="https://zenodo.org/uploads/18409492"><img src="" draggable="false">Zenodo Dataset</a> |
 | Classification Fold Dataset  | Dataset organized into folds for training, validation, and testing.        |[Zenodo Dataset](https://zenodo.org/records/18409492) |
-| Motif Dataset                | Dataset containing motif-level samples used for pattern or feature analysis. | (RNA Motif Dataset)[https://zenodo.org/records/18396353] |
-| Labelled Motif Dataset            | Dataset containing backbone, nucleobase and ribose sugar labels  | [Labelled Dataset]([https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/main/README.md#benchmark](https://zenodo.org/records/18437991))| 
+| Motif Dataset                | Dataset containing motif-level samples used for pattern or feature analysis. | [RNA Motif Dataset](https://zenodo.org/records/18396353) |
+| Labelled Motif Dataset            | Dataset containing backbone, nucleobase and ribose sugar labels  | [Labelled Dataset](https://zenodo.org/records/18437991)| 
 | Benchmark Results            | Benchmark results for classification of RNA Motifs | [Results](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/main/README.md#benchmark)| 
 
 
