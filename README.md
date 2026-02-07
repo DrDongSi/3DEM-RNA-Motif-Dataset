@@ -145,6 +145,8 @@ To segment a symmetrice loop of order 2x2 at the location 1490-1495,1424-1429 ch
 # Multiple sequence style
 chimerax --nogui --cmd "runscript segment.py 8QCQ A:1490-1495,1424-1429"
 ```
+**Demo**
+[![Running demo of segmentation too](https://www.youtube.com](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/main/images/Demo.mp4)
 
 **Output**
 
@@ -358,8 +360,4 @@ The DAIS (Data Analysis & Intelligent Systems) research group at the University 
 Their research portfolio includes high-impact projects like DeepTracer for 3D protein modeling from cryo-EM data and iCare, which utilizes conversational AI and natural language processing to support mental and behavioral health.
 
 The group is also deeply committed to outreach and diversity, actively mentoring students from various backgrounds and working to encourage underrepresented minorities to pursue careers in STEM.
-<div>
-  Contributors
-  <a href="Chandramathi Murugadass">
-    <img src="[https://img.shields.io/badge/Website-%231e37ff?style=for-the-badge&logo=bytedance&logoColor=white](https://github.com/chandramathi)"></a>
-</div>
+  Contributors : [Project Lead](https://www.linkedin.com/in/chandramathi-murugadass-313b6b65/)
