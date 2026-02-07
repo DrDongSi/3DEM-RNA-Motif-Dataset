@@ -5,7 +5,7 @@ import sys
 import re
 
 def getResolution(mrc_file):
-    cmd = ["/Users/muzhumathimurugadass/phenix-1.21.2-5419/bin/phenix.mtriage",mrc_file]
+    cmd = ["phenix.mtriage",mrc_file]
     print(f" Running: {' '.join(cmd)}")
     result = subprocess.run(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     match = re.search(r"Resolution set to \s*([\d\.]+)", result.stdout)
@@ -28,7 +28,7 @@ def computeZScore( mrc_file="outputMaps/segmentedMap.mrc", pdb_name = "outputPDB
             return
 
         cmd = [
-            "/Users/muzhumathimurugadass/phenix-1.21.2-5419/bin/phenix.map_model_cc",
+            "phenix.map_model_cc",
             f"./{pdb_name}",
             f"./{mrc_file}",
             f"resolution={resolution}",

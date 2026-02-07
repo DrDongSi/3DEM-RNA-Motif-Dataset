@@ -6,6 +6,19 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from segment import fetch_emdb_map, fetch_pdb_file, segment_map
 
+try:
+    from Bio import PDB
+    import mrcfile
+except ImportError as e:
+    raise RuntimeError(
+        "Required packages not found in ChimeraX Python. "
+        "Install with:\n"
+        "/Applications/ChimeraX-1.9.app/Contents/Library/Frameworks/"
+        "Python.framework/Versions/3.11/bin/python3 "
+        "-m pip install biopython mrcfile --no-user --break-system-packages"
+    ) from e
+
+
 def run(session):
     pdb_id = "9J1M"
     chain_id = "a"
