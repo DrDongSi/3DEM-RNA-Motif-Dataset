@@ -47,188 +47,99 @@ We introduce, a pipeline for cryo-electron microscopy (cryo-EM) density maps and
 
 ## Getting started (For end users)
 
-### Installation - Repository
+### Installation
 
-Clone the dataset and scripts:
+#### 1. Clone the Repository
 
-**macOS/Linux:**
 ```bash
 git clone https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset
 cd 3DEM-RNA-Motif-Dataset
 ```
 
-**Windows (PowerShell):**
-```powershell
-git clone https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset
-cd 3DEM-RNA-Motif-Dataset
+#### 2. Install Required Software
+
+**UCSF ChimeraX (v1.9 or higher)**
+
+1. Download from: https://www.cgl.ucsf.edu/chimerax/download.html
+2. Run the installer for your operating system
+3. **Windows:** During installation, ensure ChimeraX is added to your system PATH, or manually add `C:\Program Files\ChimeraX <version>\bin` to your PATH environment variable
+
+**Phenix (for Q-Score and Z-Score computation)**
+
+1. Download from: https://phenix-online.org/download/
+2. Run the installer for your operating system
+3. Add Phenix to your system PATH:
+   - **Windows:** Add `C:\Users\<YourUsername>\phenix-<version>\phenix_bin` to system PATH via Environment Variables
+   - **macOS:** Add `export PATH="/Applications/phenix-<version>/build/bin:$PATH"` to `~/.zshrc`
+   - **Linux:** Add `export PATH="/opt/phenix/phenix-<version>/build/bin:$PATH"` to `~/.bashrc`
+4. Restart your terminal
+
+#### 3. Install mrcfile in ChimeraX
+
+Run the following command to install `mrcfile` inside ChimeraX's Python environment:
+
+**macOS:**
+
+```bash
+/Applications/ChimeraX-1.9.app/Contents/bin/ChimeraX --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
 ```
----
 
-### Dependencies
+**Windows (PowerShell):**
 
-#### Required Tools
+```powershell
+ChimeraX --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
+```
 
-- **UCSF ChimeraX (v1.9 or higher)**  
-  Download: https://www.cgl.ucsf.edu/chimerax/download.html
+**Linux:**
 
-- **Phenix (Required for Q-Score and Z-Score computation)**  
-  
-  **Installation:**
-  1. Visit the Phenix download page: https://phenix-online.org/download/
-  2. Download the installer for your operating system
-  3. Follow the platform-specific installation steps below
-  
-  **macOS:**
-  - Download the macOS installer (.dmg file)
-  - Open the installer and follow the prompts
-  - Default installation location: `/Applications/phenix-<version>`
-  - Add to PATH by adding this line to your `~/.zshrc` or `~/.bash_profile`:
-    ```bash
-    export PATH="/Applications/phenix-<version>/build/bin:$PATH"
-    ```
-  - Reload your shell: `source ~/.zshrc`
-  
-  **Linux:**
-  - Download the Linux installer (.tar.gz file)
-  - Extract and run the installer:
-    ```bash
-    tar xvf phenix-installer-<version>-linux.tar.gz
-    cd phenix-installer-<version>
-    ./install --prefix=/opt/phenix
-    ```
-  - Add to PATH by adding this line to your `~/.bashrc`:
-    ```bash
-    export PATH="/opt/phenix/phenix-<version>/build/bin:$PATH"
-    ```
-  - Reload your shell: `source ~/.bashrc`
-  
-  **Windows:**
-  - Download the Windows installer (.exe file)
-  - Run the installer and follow the prompts
-  - Default installation location: `C:\Users\<YourUsername>\phenix-<version>`
-  - **Add to System PATH:**
-    1. Press `Win + R`, type `sysdm.cpl`, press Enter
-    2. Click "Advanced" tab → "Environment Variables" button
-    3. Under "System variables", select "Path" → Click "Edit"
-    4. Click "New" and add: `C:\Users\<YourUsername>\phenix-<version>\phenix_bin`
-    5. Click "OK" on all windows
-    6. **Restart your terminal** for changes to take effect
-  
-  **Verify Installation:**
-  After installation and adding to PATH, verify it works:
-  
-  **macOS/Linux:**
-  ```bash
-  phenix.mtriage --version
-  ```
-  
-  **Windows (PowerShell):**
-  ```powershell
-  phenix.mtriage --version
-  ```
-  
-  If the command is not found, restart your terminal or check that the PATH is correctly set.
+```bash
+chimerax --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
+```
 
-- **mrcfile (inside ChimeraX)**  
-  Even if installed via `pip`, ChimeraX will **not** see it. Install it via ChimeraX's Python:
+> **Note:** `mrcfile` must be installed inside ChimeraX's Python environment, not system Python.
 
-  **macOS:**
-  ```bash
-  /Applications/ChimeraX-1.9.app/Contents/bin/ChimeraX --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
-  ```
+#### 4. Verify Installation
 
-  **Windows (PowerShell):**
-  ```powershell
-  ChimeraX --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
-  ```
-  > **Note:** On Windows, use `ChimeraX` (capital C and X), not `chimerax` (lowercase)
-
-  **Linux:**
-  ```bash
-  chimerax --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
-  ```
-
-> **Note:** Installing `mrcfile` through system Python is insufficient. It must be installed inside ChimeraX's Python environment.
-
----
-#### Installing UCSF ChimeraX
-
-1. Visit: https://www.cgl.ucsf.edu/chimerax/download.html  
-2. Download the installer for your OS (Windows / macOS / Linux)
-3. Follow platform-specific installation steps
-4. Verify installation:
+Test that all tools are properly installed:
 
 **macOS/Linux:**
+
 ```bash
 chimerax --nogui
+phenix.mtriage --version
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 ChimeraX --nogui
+phenix.mtriage --version
 ```
-
-> **Windows Users:** 
-> - Use `ChimeraX` (capital C and X), not `chimerax` (lowercase)
-> - Make sure ChimeraX is added to your system PATH during installation, or add it manually to the Path environment variable (e.g., `C:\Program Files\ChimeraX 1.11.1\bin`)
 
 ---
 
-### Troubleshooting
-
-#### Windows PowerShell: No Console Output
-
-If ChimeraX commands run but produce no visible output in PowerShell, add `2>&1 | Out-Host` to the end of your commands:
-
-```powershell
-ChimeraX --nogui --cmd "runscript segment.py 8QCQ A:1896-1903" 2>&1 | Out-Host
-```
-
-This forces PowerShell to display ChimeraX's console output.
-
-#### Phenix Not Found After Installation
-
-If you get "phenix.mtriage: command not found" errors:
-
-1. **Verify Phenix is in your PATH:**
-   - **Windows:** `where.exe phenix.mtriage`
-   - **macOS/Linux:** `which phenix.mtriage`
-
-2. **If not found, check installation location:**
-   - **Windows:** Look for `C:\Users\<YourUsername>\phenix-<version>\phenix_bin`
-   - **macOS:** Look for `/Applications/phenix-<version>/build/bin`
-   - **Linux:** Look for `/opt/phenix/phenix-<version>/build/bin` or your custom install location
-
-3. **Add the correct path** (see Phenix installation instructions above)
-
-4. **Restart your terminal** after modifying PATH
-
-#### ChimeraX Command Not Found
-
-If `ChimeraX` or `chimerax` is not recognized:
-
-- **Windows:** Ensure `C:\Program Files\ChimeraX <version>\bin` is in your system PATH
-- **macOS/Linux:** Ensure ChimeraX bin directory is in your PATH, or use the full path to the executable
-
----
-
-### Quick Start
+## Usage
 
 ### Segmentation
-Segmentation is performed by aligning atomic RNA structures to their corresponding cryo-EM density maps, selecting user-specified residue ranges, and extracting local density using spatial zoning around the selected atoms. The resulting non-zero voxel regions are cropped into compact subvolumes, producing motif-specific density maps suitable for quantitative analysis and classification.
-As show in the following figure segmenting a hairpin with four residues at the location 1896 - 1903 chain positions in Chain A of _B. subtilis ApdA-stalled_ ribosomal complex with PDB ID 8QCQ, by selecting the density voxels around the atomic map of the hairpin. The occurrence information of the motifs for the dataset collected in this project is obtained from CossMosDB and the jupyter notebook found here can be used to collect all the motif information.   You can  find the information of motif sequences already fetched [here](https://drive.google.com/drive/folders/1hHA16pI2Vi6p6EgbGSfCZ9rksYzvBifN?usp=sharing). And you may use this information in segmentation and labelling tool testing and usage. You can also use the dataset for ML or deeplearning modeling. You can the jupyter notebook is only used to fetch the motif sequence information from CossMos [here](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/src/process_cossmos.ipynb) if you require testing of motif information fetch process. For which create a directory RNAmotifproject under MyDrive in google drive and copy [this](https://drive.google.com/drive/folders/1yDI5FakBihkRMw4z_5mmrnz_stLHZc0o?usp=drive_link) folder under the same name inside the RNAmotifproject directory.
+
+Segmentation aligns atomic RNA structures to their corresponding cryo-EM density maps, extracts local density around user-specified residue ranges, and crops the result into compact subvolumes for analysis and classification.
+
+The occurrence information for motifs in this dataset is obtained from [CossMosDB](https://drive.google.com/drive/folders/1hHA16pI2Vi6p6EgbGSfCZ9rksYzvBifN?usp=sharing). A [Jupyter notebook](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/src/process_cossmos.ipynb) is provided for fetching motif sequence information.
 
 <p align="center">
-  <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/Segmentation.png" alt="RNA Motif Architecture" width="720">
+  <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/Segmentation.png" alt="RNA Motif Segmentation" width="720">
 </p>
 
+#### Architecture
 
-#### Architecture Overview
-PDB structures and density maps are loaded into ChimeraX via public REST APIs without authentication, followed by segmentation. Cryo-EM density data stored in MRC/map formats are processed to generate and label 25 motif types, forming a dataset. The density maps are fitted to RNA 3D structures, and voxels within 5 Å of selected RNA chain regions are segmented as regions of interest.
+PDB structures and density maps are loaded into ChimeraX via public REST APIs. Cryo-EM density data (MRC/map formats) are processed to generate and label 25 motif types. Density maps are fitted to RNA 3D structures, and voxels within 5 Å of selected RNA chain regions are segmented as regions of interest.
+
 <p align="center">
   <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/images/Architecture%20diagram.png" alt="RNA Motif Architecture" width="720">
 </p>
+
 ---
+
 ## Project Structure
 
 ```text
@@ -241,194 +152,154 @@ configurations/
 
 ---
 
-## Segmentation Command Line Tool Overview
+### Segmentation Command Line Tool
 
-**Usage**
+> **Windows PowerShell Note:** To see console output in PowerShell, add `2>&1 | Out-Host` to the end of ChimeraX commands.
 
-**macOS/Linux:**
+**Syntax**
+
 ```bash
-chimerax --nogui --script segment.py -- \
-  <pdb_id> [emdb_id(optional)] \
-  <chain:start-end[,start-end]> [<chain:start-end> ...]
+chimerax --nogui --cmd "runscript segment.py <pdb_id> [emdb_id] <chain:start-end[,start-end]> ..."
 ```
 
-**Windows (PowerShell):**
-```powershell
-ChimeraX --nogui --script segment.py -- `
-  <pdb_id> [emdb_id(optional)] `
-  <chain:start-end[,start-end]> [<chain:start-end> ...]
-```
+> **Note:** Execute commands from within the `src` directory.
 
-**Example: Segmentation of a RNA-Motif density map**
+**Examples**
 
-To segment a hairpin with four residues at the location 1896 - 1903 chain positions in Chain A of _B. subtilis ApdA-stalled_ ribosomal complex with PDB ID 8QCQ. 
-
-> **Note:** Execute the command line tool from within the `src` directory.
+Segment a hairpin at positions 1896-1903 in Chain A of PDB ID 8QCQ:
 
 **macOS/Linux:**
+
 ```bash
 cd src
-# Single sequence style
 chimerax --nogui --cmd "runscript segment.py 8QCQ A:1896-1903"
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 cd src
-# Single sequence style  
-# Note: Add '2>&1 | Out-Host' to see console output in PowerShell
 ChimeraX --nogui --cmd "runscript segment.py 8QCQ A:1896-1903" 2>&1 | Out-Host
 ```
 
-> **Windows PowerShell Note:** ChimeraX output doesn't display by default in PowerShell. Add `2>&1 | Out-Host` to the end of commands to see the console output.
-
-To segment a symmetric loop of order 2x2 at the location 1490-1495,1424-1429 chain positions in Chain A of _B. subtilis ApdA-stalled_ ribosomal complex with PDB ID 8QCQ.
+Segment a symmetric loop at positions 1490-1495,1424-1429 in Chain A of PDB ID 8QCQ:
 
 **macOS/Linux:**
+
 ```bash
-# Multiple sequence style
 chimerax --nogui --cmd "runscript segment.py 8QCQ A:1490-1495,1424-1429"
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
-# Multiple sequence style
 ChimeraX --nogui --cmd "runscript segment.py 8QCQ A:1490-1495,1424-1429" 2>&1 | Out-Host
 ```
 
 **Output**
 
-The segmented files will be stored in the directory outputMaps and outputPDBs (the folders will be created if not already present). The Q-Score, CCmask results will be printed to the console and mask.ccp4 written to the current directory. 
-
+Segmented files are saved to `outputMaps/` and `outputPDBs/` directories (created automatically). Q-Score and CCmask results are printed to console, and `mask.ccp4` is written to the current directory.
 
 ---
 
-## Labeling 
+### Labeling
 
-Labeling MRC density maps projects atomic model information into the 3D voxel space of cryo-EM maps. Atomic coordinates are aligned, converted to voxel indices, and assigned labels within a defined radius to account for density blur. Overlapping labels are resolved by nearest-atom assignment. The result is a labeled MRC file with biologically meaningful voxel-level annotations, useful for motif recognition, segmentation, and training deep learning models.
-
-**Usage**
-
-**macOS/Linux:**
-```bash
-python3 label.py input.mrc input.pdb
-```
-
-**Windows:**
-```powershell
-python label.py input.mrc input.pdb
-```
+Labeling projects atomic model information into 3D voxel space of cryo-EM maps. Atomic coordinates are converted to voxel indices and assigned labels within a defined radius. The result is a labeled MRC file with voxel-level annotations for motif recognition and deep learning training.
 
 <p align="center">
   <img src="https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/blob/chandramathi/images/LabelFlow.png" alt="RNA Labeling Illustration" width="720">
 </p>
 
+**Usage**
+
+**macOS/Linux:**
+
+```bash
+cd src
+python3 label.py <input.mrc> <input.pdb>
+```
+
+**Windows:**
+
+```powershell
+cd src
+python label.py <input.mrc> <input.pdb>
+```
 
 **Example**
 
-**macOS/Linux:**
 ```bash
-cd src
 python3 label.py ./outputMaps/segmentedMap.mrc ./outputPDBs/segmentedPDB.pdb
 ```
 
-**Windows (PowerShell):**
-```powershell
-cd src
-python label.py ./outputMaps/segmentedMap.mrc ./outputPDBs/segmentedPDB.pdb
-```
 **Output**
 
-By default creates files of the name 
-Backbone Label - backbone_label_segmentedMap.mrc
-Ribose Label - ribose_label_segmentedMap.mrc
-Sugar Label - sugar_label_segmentedMap.mrc
+Three labeled MRC files are created:
+- `backbone_label_segmentedMap.mrc`
+- `ribose_label_segmentedMap.mrc`
+- `sugar_label_segmentedMap.mrc`
 
-You can find the sample response [here](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/chandramathi/sample)
+Sample outputs are available [here](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/chandramathi/sample).
 
 ---
+
 ## Classification
 
-This research includes a classification of motifs using the 3D CNN deep learning model. This classification model is used to test and ensure that the created labelled dataset of motifs has the metadata and data in the files in a consistent format. The training is designed to classify RNA structures using a 3D based deep learning model that leverages both cryo-EM density maps (.mrc files). The dataset is first split into training and validation subsets (80% training and 20 % validation), then wrapped into PyTorch DataLoader objects for efficient batching. The model, Motif3DCNN has 5 classes "symmetric_loop", "bulge", "hairpin", "asymmetric_loop","unknown", takes as input a volumetric density map and corresponding labelled 3D map to extract those voxels  features. Training is performed using cross entropy loss for multi class classification, with the Adam optimizer managing parameter updates. After each epoch, the model’s performance is evaluated on the validation set, and a checkpoint is saved so that training progress can be resumed or tested later.
+A 3D CNN deep learning model (Motif3DCNN) classifies RNA motifs into 5 classes: symmetric_loop, bulge, hairpin, asymmetric_loop, and unknown. The model uses cryo-EM density maps and is trained with cross-entropy loss and Adam optimizer.
 
 ### Training
-To train the classification model we used segmented motif maps of 2.8 Å or higher. And grouped them into  5 classes symmetric, asymmetric, hairpin. bulges and unknown. The symmetric, asymmetric, hairpin. bulges are RNA motif structures and unknown is any background noise or structures anything that isn't a motif. We used 5 Folds each with approximately 1800 Training data and 450 validation dataset following the 80-20 rule. Each motif type contains about 90 samples that is each set of data contains 5 x 90 = 450 and hence the validation dataset of each fold contains 450. 
-The default number of epochs used for training is 30.
+
+The classification model uses segmented motif maps of 2.8 Å resolution or higher. The dataset is organized into 5 folds with approximately 1800 training samples and 450 validation samples (80-20 split) per fold. Training runs for 30 epochs by default.
 
 **Usage**
 
-**macOS/Linux:**
 ```bash
-python3 train.py <CSVOfTrainingDataset> <CSVOfValidationDataset> <DestinationDirectory>
-```
-
-**Windows:**
-```powershell
-python train.py <CSVOfTrainingDataset> <CSVOfValidationDataset> <DestinationDirectory>
+cd src
+python3 train.py <training_csv> <validation_csv> <output_directory>
 ```
 
 **Parameters:**
-- **CSVOfTrainingDataset** - A csv file containing a list of the density files that are to be used for training of the classification model
-- **CSVOfValidationDataset** - A csv file containing a list the density files that are to be used for validation of the classification model
-- **DestinationDirectory** - The location where all the trained models are saved.
+- `training_csv` - CSV file listing training density files
+- `validation_csv` - CSV file listing validation density files
+- `output_directory` - Directory to save trained model weights
 
-You can find all the curated training and validation input CSV files [here](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/main/src/trainingCSVs) and the filtered dataset needed for training [here](https://zenodo.org/records/18396353)
+Training/validation CSV files: [trainingCSVs/](https://github.com/DrDongSi/3DEM-RNA-Motif-Dataset/tree/main/src/trainingCSVs)  
+Training dataset: [Zenodo](https://zenodo.org/records/18396353)
 
 **Example:**
 
-**macOS/Linux:**
 ```bash
-cd src
 python3 train.py ./trainingCSVs/fold1_train.csv ./trainingCSVs/fold1_val.csv SET1
 ```
 
-**Windows (PowerShell):**
-```powershell
-cd src
-python train.py ./trainingCSVs/fold1_train.csv ./trainingCSVs/fold1_val.csv SET1
-```
-
-**Output**
-Model weights stored as .pth files in the directory given as command line argument.
+**Output:** Model weights saved as `.pth` files in the specified directory.
 
 ---
+
 ### Testing
-To test the trained classification model you can use the utility validate_folder.py
+
+Test trained models using the `validate_folder.py` utility.
 
 **Usage**
 
-**macOS/Linux:**
 ```bash
-python3 validate_folder.py <testFilesDirectory> <modelWeights>
-```
-
-**Windows:**
-```powershell
-python validate_folder.py <testFilesDirectory> <modelWeights>
+cd src
+python3 validate_folder.py <test_directory> <model_weights>
 ```
 
 **Parameters:**
-- **testFilesDirectory** - The folder path of the directory containing all the files that are going to be used in testing the trained classification model. Ensure that the files follow the naming convention `<emdb_id>_<pdb_id>_<motif_type>_<sequenceNumber>.mrc` followed in this project
-- **modelWeights** - The file path of the trained classification model.
+- `test_directory` - Directory containing test MRC files (must follow naming convention: `<emdb_id>_<pdb_id>_<motif_type>_<sequenceNumber>.mrc`)
+- `model_weights` - Path to trained model `.pth` file
 
-Download the trained models used for benchmarking from [here](https://zenodo.org/records/18409492) 
+Pretrained models: [Zenodo](https://zenodo.org/records/18409492)
 
 **Example:**
 
-**macOS/Linux:**
 ```bash
-cd src
 python3 validate_folder.py ./testSET/ ./models/fold5Model.pth
 ```
 
-**Windows (PowerShell):**
-```powershell
-cd src
-python validate_folder.py ./testSET/ ./models/fold5Model.pth
-```
-
-**Output**
-It will give the confusion matrix, specificity and selectivity scores.
+**Output:** Confusion matrix, specificity, and selectivity scores.
 
 ---
 
