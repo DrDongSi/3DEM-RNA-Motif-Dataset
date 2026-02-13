@@ -61,36 +61,23 @@ cd 3DEM-RNA-Motif-Dataset
 **UCSF ChimeraX (v1.9 or higher)**
 
 1. Download from: https://www.cgl.ucsf.edu/chimerax/download.html
-2. Run the installer for your operating system
-3. **Windows:** During installation, ensure ChimeraX is added to your system PATH, or manually add `C:\Program Files\ChimeraX <version>\bin` to your PATH environment variable
+2. Run the installer
+3. Add ChimeraX to your system PATH if needed
 
 **Phenix (for Q-Score and Z-Score computation)**
 
+Installation instructions and source available from the official Phenix site - [https://www.phenix-online.org/about](https://www.phenix-online.org/about).
+
+We use Phenix to compute CCmask (Z-Score) but for Q-Score we use chimerax plugin.
+
 1. Download from: https://phenix-online.org/download/
-2. Run the installer for your operating system
-3. Add Phenix to your system PATH:
-   - **Windows:** Add `C:\Users\<YourUsername>\phenix-<version>\phenix_bin` to system PATH via Environment Variables
-   - **macOS:** Add `export PATH="/Applications/phenix-<version>/build/bin:$PATH"` to `~/.zshrc`
-   - **Linux:** Add `export PATH="/opt/phenix/phenix-<version>/build/bin:$PATH"` to `~/.bashrc`
+2. Run the installer
+3. Add Phenix to your system PATH: Add `export PATH="/opt/phenix/phenix-<version>/build/bin:$PATH"` to `~/.bashrc`
 4. Restart your terminal
 
 #### 3. Install mrcfile in ChimeraX
 
 Run the following command to install `mrcfile` inside ChimeraX's Python environment:
-
-**macOS:**
-
-```bash
-/Applications/ChimeraX-1.9.app/Contents/bin/ChimeraX --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
-```
-
-**Windows (PowerShell):**
-
-```powershell
-ChimeraX --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
-```
-
-**Linux:**
 
 ```bash
 chimerax --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit"
@@ -102,17 +89,8 @@ chimerax --nogui --cmd "toolshed install https://pypi.org/project/mrcfile/; exit
 
 Test that all tools are properly installed:
 
-**macOS/Linux:**
-
 ```bash
 chimerax --nogui
-phenix.mtriage --version
-```
-
-**Windows (PowerShell):**
-
-```powershell
-ChimeraX --nogui
 phenix.mtriage --version
 ```
 
@@ -154,8 +132,6 @@ configurations/
 
 ### Segmentation Command Line Tool
 
-> **Windows PowerShell Note:** To see console output in PowerShell, add `2>&1 | Out-Host` to the end of ChimeraX commands.
-
 **Syntax**
 
 ```bash
@@ -166,34 +142,17 @@ chimerax --nogui --cmd "runscript segment.py <pdb_id> [emdb_id] <chain:start-end
 
 **Examples**
 
-Segment a hairpin at positions 1896-1903 in Chain A of PDB ID 8QCQ:
-
-**macOS/Linux:**
+To segment a hairpin with four residues at the location 1896-1903 chain positions in Chain A of _B. subtilis ApdA-stalled_ ribosomal complex with PDB ID 8QCQ:
 
 ```bash
 cd src
 chimerax --nogui --cmd "runscript segment.py 8QCQ A:1896-1903"
 ```
 
-**Windows (PowerShell):**
-
-```powershell
-cd src
-ChimeraX --nogui --cmd "runscript segment.py 8QCQ A:1896-1903" 2>&1 | Out-Host
-```
-
-Segment a symmetric loop at positions 1490-1495,1424-1429 in Chain A of PDB ID 8QCQ:
-
-**macOS/Linux:**
+To segment a symmetric loop at positions 1490-1495,1424-1429 in Chain A of _B. subtilis ApdA-stalled_ ribosomal complex with PDB ID 8QCQ:
 
 ```bash
 chimerax --nogui --cmd "runscript segment.py 8QCQ A:1490-1495,1424-1429"
-```
-
-**Windows (PowerShell):**
-
-```powershell
-ChimeraX --nogui --cmd "runscript segment.py 8QCQ A:1490-1495,1424-1429" 2>&1 | Out-Host
 ```
 
 **Output**
@@ -212,18 +171,9 @@ Labeling projects atomic model information into 3D voxel space of cryo-EM maps. 
 
 **Usage**
 
-**macOS/Linux:**
-
 ```bash
 cd src
 python3 label.py <input.mrc> <input.pdb>
-```
-
-**Windows:**
-
-```powershell
-cd src
-python label.py <input.mrc> <input.pdb>
 ```
 
 **Example**
@@ -245,11 +195,11 @@ Sample outputs are available [here](https://github.com/DrDongSi/3DEM-RNA-Motif-D
 
 ## Classification
 
-A 3D CNN deep learning model (Motif3DCNN) classifies RNA motifs into 5 classes: symmetric_loop, bulge, hairpin, asymmetric_loop, and unknown. The model uses cryo-EM density maps and is trained with cross-entropy loss and Adam optimizer.
+This research includes a classification of motifs using the 3D CNN deep learning model. This classification model is used to test and ensure that the created labelled dataset of motifs has the metadata and data in the files in a consistent format. The training is designed to classify RNA structures using a 3D based deep learning model that leverages both cryo-EM density maps (.mrc files). The dataset is first split into training and validation subsets (80% training and 20% validation), then wrapped into PyTorch DataLoader objects for efficient batching. The model, Motif3DCNN has 5 classes "symmetric_loop", "bulge", "hairpin", "asymmetric_loop","unknown", takes as input a volumetric density map and corresponding labelled 3D map to extract those voxels features. Training is performed using cross entropy loss for multi class classification, with the Adam optimizer managing parameter updates. After each epoch, the model's performance is evaluated on the validation set, and a checkpoint is saved so that training progress can be resumed or tested later.
 
 ### Training
 
-The classification model uses segmented motif maps of 2.8 Å resolution or higher. The dataset is organized into 5 folds with approximately 1800 training samples and 450 validation samples (80-20 split) per fold. Training runs for 30 epochs by default.
+To train the classification model we used segmented motif maps of 2.8 Å or higher. And grouped them into 5 classes symmetric, asymmetric, hairpin, bulges and unknown. The symmetric, asymmetric, hairpin, bulges are RNA motif structures and unknown is any background noise or structures anything that isn't a motif. We used 5 Folds each with approximately 1800 Training data and 450 validation dataset following the 80-20 rule. Each motif type contains about 90 samples that is each set of data contains 5 x 90 = 450 and hence the validation dataset of each fold contains 450. The default number of epochs used for training is 30.
 
 **Usage**
 
